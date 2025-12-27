@@ -17,9 +17,9 @@ jobs:
 
       - name: Deploy via FTPS mirror to /www
         env:
-          FTP_HOST: ${{ secrets.FTP_HOST }}
-          FTP_USER: ${{ secrets.FTP_USER }}
-          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_HOST: ${{ secrets.SFTP_HOST }}
+          FTP_USER: ${{ secrets.SFTP_USER }}
+          FTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
         run: |
           lftp -e "
             set ftp:ssl-force true;
