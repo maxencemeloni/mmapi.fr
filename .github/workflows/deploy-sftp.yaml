@@ -1,4 +1,4 @@
-name: Deploy to OVH via SFTP
+name: Deploy to OVH (FTPS)
 
 on:
   push:
@@ -7,6 +7,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -14,24 +15,28 @@ jobs:
       - name: Install lftp
         run: sudo apt-get update && sudo apt-get install -y lftp
 
-      - name: Deploy via SFTP mirror
+      - name: Deploy via FTPS mirror to /www
         env:
-          HOST: ${{ secrets.SFTP_HOST }}
-          USER: ${{ secrets.SFTP_USER }}
-          PASS: ${{ secrets.SFTP_PASSWORD }}
-          PORT: ${{ secrets.SFTP_PORT }}
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         run: |
           lftp -e "
-            set sftp:auto-confirm yes;
+            set ftp:ssl-force true;
+            set ftp:ssl-protect-data true;
+            set ssl:verify-certificate no;
             set net:timeout 20;
             set net:max-retries 2;
             set net:reconnect-interval-base 5;
-            open -u $USER,$PASS sftp://$HOST:$PORT;
+
+            open -u $FTP_USER,$FTP_PASSWORD ftps://$FTP_HOST;
+
             mirror -R --delete --verbose \
               --exclude-glob .git/ \
               --exclude-glob .github/ \
               --exclude-glob node_modules/ \
               --exclude-glob *.log \
-              ./ /www/;
+              ./ www/;
+
             bye
           "
