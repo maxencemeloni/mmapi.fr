@@ -13,31 +13,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # (optionnel) si tu dois build (ex: front / static)
-      # - name: Setup Node
-      #   uses: actions/setup-node@v4
-      #   with:
-      #     node-version: 20
-      #
-      # - name: Install & Build
-      #   run: |
-      #     npm ci
-      #     npm run build
-
-      - name: Deploy via SFTP (sync)
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      - name: Deploy via SCP (SFTP over SSH)
+        uses: appleboy/scp-action@v0.1.7
         with:
-          server: ${{ secrets.SFTP_HOST }}
+          host: ${{ secrets.SFTP_HOST }}
           username: ${{ secrets.SFTP_USER }}
           password: ${{ secrets.SFTP_PASSWORD }}
           port: ${{ secrets.SFTP_PORT }}
-          protocol: ftps
-          local-dir: ./
-          server-dir: /www/
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules/**
-            **/.github/**
-            **/.DS_Store
-            **/*.log
+          source: "./*"
+          target: "/www/"
+          strip_components: 0
